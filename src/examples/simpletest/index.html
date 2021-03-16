@@ -75,7 +75,7 @@ loader.setLibraryPath( 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/' )
 ///////////////////////////////////////////////////////////////////////////
 // initialise 'data' object that will be used by compute()
 const data = {
-  definition: 'testesimples.gh',
+  definition: 'sound_made_necklace3.gh',
   inputs: {} // we'll assign data to this later!
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ downloadButton.onclick = download
 
 let audioCtx, source, analyser
 let dataArray
-let start, sample1, sample2
+let start, sample1
 
 /**
  * load file and process audio
@@ -142,7 +142,7 @@ async function readSingleFile(e) {
   dataArray = new Uint8Array(analyser.frequencyBinCount)
   start = undefined
   sample1 = undefined
-  sample2 = undefined
+
 
   // start playing audio
   // (start from 20 seconds into track)
@@ -176,12 +176,7 @@ function processAudio(timestamp) {
     document.getElementById('msg').innerText = 'Processing audio... 🎵🎵'
   }
 
-  // take the second sample at ~4 seconds
-  if (sample2 === undefined && elapsed > 4000) {
-    sample2 = Array.from(dataArray)
-    document.getElementById('msg').innerText = 'Processing audio... 🎵🎵🎵'
-  }
-
+  
   if (elapsed < 5000) { // while less than 5 seconds (5000ms), keep playing
 
     requestAnimationFrame(processAudio)
@@ -193,14 +188,13 @@ function processAudio(timestamp) {
 
     // add frequencies to input data
     data.inputs.sample1 = sample1
-    data.inputs.sample2 = sample2
     console.log(data) // check data
 
     document.getElementById('msg').innerText = 'OK! Now what?? (Check the console for sampled freqency data...)'
 
     // TODO!
     // solve grasshopper file on appserver
-    // compute()
+  compute()
 
   }
 }
@@ -352,18 +346,18 @@ function collectResults(responseJson) {
     //   return
     // }
 
-///////////////////////////////////////////////////////////////////////////
-    const countBefore = data.inputs.breps.length
-    const countAfter = doc.objects().count
-    document.getElementById('msg').innerText = `${countBefore} breps become ${countAfter}!`
+// ///////////////////////////////////////////////////////////////////////////
+//     const countBefore = data.inputs.breps.length
+//     const countAfter = doc.objects().count
+//     document.getElementById('msg').innerText = `${countBefore} breps become ${countAfter}!`
 
-    // hack (https://github.com/mcneel/rhino3dm/issues/353)
-    const sphereAttrs = new rhino.ObjectAttributes()
-    sphereAttrs.mode = rhino.ObjectMode.Hidden
-    doc.objects().addSphere(new rhino.Sphere([0,0,0], 0.001), sphereAttrs)
-    // doc.objects().addSphere(new rhino.Sphere([0,0,0], 0.001), null)
-    // doc.objects().addLine(new rhino.Line(0,0,0, 1,1,1), null)
-    console.log(doc.objects().count)
+//     // hack (https://github.com/mcneel/rhino3dm/issues/353)
+//     const sphereAttrs = new rhino.ObjectAttributes()
+//     sphereAttrs.mode = rhino.ObjectMode.Hidden
+//     doc.objects().addSphere(new rhino.Sphere([0,0,0], 0.001), sphereAttrs)
+//     // doc.objects().addSphere(new rhino.Sphere([0,0,0], 0.001), null)
+//     // doc.objects().addLine(new rhino.Line(0,0,0, 1,1,1), null)
+//     console.log(doc.objects().count)
 ///////////////////////////////////////////////////////////////////////////
 
     // load rhino doc into three.js scene
