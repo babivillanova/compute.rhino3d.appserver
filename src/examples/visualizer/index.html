@@ -9,62 +9,87 @@
         <title>Shape by Sound</title>
         <style>
             body {
-                margin: 0;
+                margin: 20px;
+                width:70%;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-                background-color: rgb(141, 133, 143);
+                background-color: rgb(0, 0, 0);
             }
-            #info {
+            #info {  
               text-align: left;
               background-color: transparent;
-              color: rgb(165, 166, 248);
-              margin: 10px;
+              color: rgb(255, 255, 255);
+              margin: 20px;
             }
-            canvas { width: 80%; height: 100%; }
+
+
+
+            h4{color: azure;
+                font-weight:lighter;
+                font-family: monospace; }
+             h2{color: rgb(255, 255, 255);
+                font-weight:normal;
+                font-family: monospace; }
             input[type=range] { width: 100%; }
-            #container { position: relative; }
-            #container canvas, #overlay { position: absolute; }
+            #container { margin: 0 auto; width: 50%;}
             #overlay { z-index: 1; width: 100%; }
-            #overlay div { padding: 5px; }
+            #overlay div { padding: 2px; }
+
             #loader {
-                border: 5px solid #f3f3f3; /* Light grey */
+                border: 5px linear-gradient(112.72013189013455deg, rgba(249, 123, 92,1) 4.927083333333334%,rgba(176, 77, 230,1) 97.84374999999999%); 
                 border-top: 5px solid #3d3d3d; /* Grey */
-                border-radius: 25%;
+                border-radius: 10%;
                 width: 40px;
                 height: 20px;
                 animation: spin 1s linear infinite;
-                position: absolute;
+                position:relative;
                 top: 25%;
                 left: 25%;
                 z-index: 2;
                 display: none; /* start hidden */
             }
+
+            .button {
+                background-color: rgb(0, 0, 0);
+                color:rgb(255, 185, 168);
+                border: 2px solid rgb(255, 185, 168);
+
+            }
+
             @keyframes spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
             }
+            
         </style>
     </head>
+
     <body>
   
-      <div id="content">
-        <input type="file" id="thefile" accept="audio/*" />
-        <canvas id="canvas"></canvas>
+        <div>
+            <h2>SoundMadeNecklace</h2> </div>
+        <div id="content">
+        <div>
+            <input type="file" id="thefile" accept="audio/*" />
+        </div>
         <br>
-       <audio id="audio" controls></audio>
-       <div>
-           <button onclick="document.getElementById('audio').play()">Play</button>
-           <button onclick="document.getElementById('audio').pause()">Pause</button>
-           <div class="slidecontainer">
-               <input type="range" min="0" max="1000" value="0" class="slider" id="myRange" name="time">
-           </div>
-
-           <button onclick="document.getElementById('audio').volume += 0.1">volume +</button>
-           <button onclick="document.getElementById('audio').volume -= 0.1">volume -</button>
-           <div><button id="downloadButton" disabled>Download</button></div>
+        <div class="audio"> 
+        <audio id="audio" controls></audio> 
+        </div>
+      
+        <div>
+        <div class="controle row">
+            <h4>Upload your audio file to generate a SoundMadeNecklace. After a few seconds playing, press pause and wait for the results.
+            
+            <h4> Once generated, download your SoundMadeNecklace and set it up for 3D printing or CNC cutting.</h4>
+ 
+         </div>
+              <div class="row"><button id="downloadButton" disabled>Download</button></div>
            <div id="loader"></div> 
 <console class="log"></console>
-
        </div>
+
+
+
 
         <script type="module">
 
@@ -114,6 +139,13 @@ rhino3dm().then(async m => {
 
 })
 
+function showSpinner(enable) {
+  if (enable)
+    document.getElementById('loader').style.display = 'block'
+  else
+    document.getElementById('loader').style.display = 'none'
+}
+
 function download () {
     // write rhino doc to "blob"
     const bytes = doc.toByteArray()
@@ -148,8 +180,8 @@ function init () {
 
   scene = new THREE.Scene()
   scene.background = new THREE.Color(1,1,1) 
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 )
-  camera.position.set(1, -1, 1) // like perspective view
+  camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 1, 500 )
+  camera.position.set(0, 0, 1) // like perspective view
 
       // very light grey for background, like rhino
       scene.background = new THREE.Color('black')
@@ -237,7 +269,6 @@ function zoomCameraToSelection( camera, controls, selection, fitOffset = 1.2 ) {
  
   var dataArray
   var analyser
-  var ctx
   var bufferLength
   var totalDados = []
   var dadosExportar = []
@@ -261,12 +292,7 @@ function zoomCameraToSelection( camera, controls, selection, fitOffset = 1.2 ) {
         var src = context.createMediaElementSource(audio);
         analyser = context.createAnalyser();
     
-        //Create and initialize drawing space
-        var canvas = document.getElementById("canvas");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        ctx = canvas.getContext("2d");
-  
+ 
   
         //Connect audio node analyser and adjust settings
         src.connect(analyser);
@@ -282,15 +308,9 @@ function zoomCameraToSelection( camera, controls, selection, fitOffset = 1.2 ) {
         //This results in a more pleasing aesthetic.
         bufferLength = Math.floor(analyser.frequencyBinCount/ 1.50); 
         dataArray = new Uint8Array(bufferLength);
-        var WIDTH = canvas.width;
-        var HEIGHT = canvas.height;
-        var barWidth = (WIDTH / bufferLength);
   
         //Print information for debugging.
         console.log("Buffer Length: ", bufferLength);
-        console.log("HEIGHT: ", HEIGHT);
-        console.log("WIDTH: ", WIDTH);
-        console.log("barWidth: ", barWidth);
         console.log("maxDB: ", analyser.maxDecibels);
         console.log("minDB: ", analyser.minDecibels);
         console.log("sampleRate: ", context.sampleRate);
@@ -310,11 +330,6 @@ function zoomCameraToSelection( camera, controls, selection, fitOffset = 1.2 ) {
         })
   
         function grafico () {
-          ctx.fillStyle = 'rgb(200, 200, 200)';
-          ctx.fillRect(0, 0, 400, 400);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = 'rgb(0, 0, 0)';
-          ctx.beginPath();
           var sliceWidth = 400 * 1.0 / bufferLength;
           var x = 0;
   
@@ -327,19 +342,18 @@ function zoomCameraToSelection( camera, controls, selection, fitOffset = 1.2 ) {
                   if(i === 0) {
                     const pt = "{\"X\":"+x+",\"Y\":"+y+",\"Z\":"+0+"}"
                     data.inputs["points"].push(pt)
-                  ctx.moveTo(x, y);
+
                   } else {
                     const pt = "{\"X\":"+x+",\"Y\":"+y+",\"Z\":"+0+"}"
                       data.inputs["points"].push(pt)
-                  ctx.lineTo(x, y);
+
                   }
       
                   x += sliceWidth;
               }
           }
   
-          ctx.lineTo(canvas.width, canvas.height/2);
-          ctx.stroke();
+
         }
       };
     };
@@ -349,7 +363,7 @@ async function compute() {
       let t0 = performance.now()
       const timeComputeStart = t0
 
-// showSpinner(true)
+showSpinner(true)
 
 let params=[]
 for(let i =0;i<=29;i++){
@@ -465,7 +479,7 @@ loader.parse( buffer, function ( object )
     scene.add( object )
 
     // hide spinner and enable download button
-    //showSpinner(false)
+    showSpinner(false)
     downloadButton.disabled = false
 
     // zoom to extents
